@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace test
 {
@@ -30,6 +31,15 @@ namespace test
         //{
 
         //}
+        public static void CreateReport(IEnumerable<string> files)
+        {
+            var fileQuery = from file in files select (new FileInfo(file));
+
+            foreach(var fileData in fileQuery)
+            {
+                Console.WriteLine(fileData.Name + ": " + fileData.Length);
+            }
+        }
 
         static void Main(string[] args)
         {
@@ -37,9 +47,10 @@ namespace test
             //var tempDir = Path.Combine(appDataDir, "Documents");
             Console.WriteLine(appDataDir);
             Console.WriteLine("hello");
-            var files = EnumerateFilesRecursively(appDataDir.ToString() + "/Documents/School/CECS_342/Lab_04/");
+            var files = EnumerateFilesRecursively(appDataDir.ToString() + args[0]);
             //Console.WriteLine(appDataDir.ToString() + "/School/");
-            foreach (var f in files) Console.WriteLine(f);
+            //foreach (var f in files) Console.WriteLine(f);
+            CreateReport(files);
         }
     }
 }
