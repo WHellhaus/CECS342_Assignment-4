@@ -26,44 +26,48 @@ namespace test342
 
         //}
         private static XDocument CreateReport(IEnumerable<string> files)
-           => new XDocument(
-               new XElement("html",
-                   new XElement("head",
-                       new XElement("th", "CECS 342 Lab Assignment 4"),
-                       new XElement("style", "table, th, td { border: 1px solid black; }")
+                  => new XDocument(
+                      new XElement("html",
+                          new XElement("head",
+                              new XElement("table",
+                                new XElement("thead",
+                                               new XElement("th", "CECS 342 Assignment 4"))
+                                     ),
+                                new XElement("style", "head, th, td { border: 2px solid black;padding: 5px;border-style: inset }")
+                          ),
+                          new XElement("body",
 
-                   ),
-                   new XElement("body",
-                       new XElement("table",
-                               new XElement("thead",
-                                       new XElement("th", "Type",
-                                           new XAttribute("align", "center")),
-                                       new XElement("th", "Count",
-                                            new XAttribute("align", "center")),
-                                       new XElement("th", "Size",
-                                            new XAttribute("align", "center"))
-                               ),
-                               new XElement("tbody",
-                                   from test in files
-                                   group test by Path.GetExtension(test).ToLower() into testFile
-                                   let fileSize = testFile.Sum(file => new FileInfo(file).Length)
-                                   orderby fileSize ascending
-                                   select new XElement("tr",
-                                       new XElement("td", testFile.Key,
-                                            new XAttribute("align", "left")),
-                                       new XElement("td", testFile.Count(),
-                                           new XAttribute("align", "right")),
-                                       new XElement("td", FormatByteSize(fileSize),
-                                           new XAttribute("align", "right"))
-                                   )//End select new XElement
-                               )
-                           )
-                       )
-                   )
+                              new XElement("table",
 
-               );
+                                      new XElement("thead",
+                                              new XElement("th", "Type",
+                                                  new XAttribute("align", "center")),
+                                              new XElement("th", "Count",
+                                                   new XAttribute("align", "center")),
+                                              new XElement("th", "Size",
+                                                   new XAttribute("align", "center"))
+                                      ),
+                                      new XElement("tbody",
+                                          from test in files
+                                          group test by Path.GetExtension(test).ToLower() into testFile
+                                          let fileSize = testFile.Sum(file => new FileInfo(file).Length)
+                                          orderby fileSize ascending
+                                          select new XElement("tr",
+                                              new XElement("td", testFile.Key,
+                                                   new XAttribute("align", "left")),
+                                              new XElement("td", testFile.Count(),
+                                                  new XAttribute("align", "right")),
+                                              new XElement("td", FormatByteSize(fileSize),
+                                                  new XAttribute("align", "right"))
+                                          )//End select new XElement
+                                      )//End new XElement tbody
+                                  )//End new XElement Table
+                              )//End new XElement body
+                          )//End new XElement html
 
-       // public static XDocument CreateReport(IEnumerable<string> files)
+                      );
+
+        // public static XDocument CreateReport(IEnumerable<string> files)
         //{
 
         //}
