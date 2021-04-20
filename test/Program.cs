@@ -10,21 +10,33 @@ namespace test342
     {
         public static IEnumerable<string> EnumerateFilesRecursively(string path)
         {
+            // Generator for creating IEnumerable of file paths
             foreach (var file in Directory.GetFiles(path))
             {
                 yield return file;
             }
-
+            // Recursive call for all subdirectories from the main directory passed
             foreach (var directory in Directory.GetDirectories(path))
             {
                 foreach (var file in EnumerateFilesRecursively(directory))
                     yield return file;
             }
         }
-        //public static string FormatByteSize(long byteSize)
-        //{
+        public static string FormatByteSize(long byteSize)
+        {
+            // array to hold different byte sizes
+            string[] size = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
+            if (byteSize == 0)
+                return "0" + size[0];
 
-        //}
+            long bytes = Math.Abs(byteSize);
+            // gets correct byte size by finding log with 1024 which is the separation for each byte size 
+            int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
+            // rounds to 2 decimal places after converting to correct byte size
+            double number = Math.Round(bytes / Math.Pow(1024, place), 2);
+            // return string representation
+            return (Math.Sign(byteSize) * number).ToString() + size[place];
+        }
         private static XDocument CreateReport(IEnumerable<string> files)
                   => new XDocument(
                       new XElement("html",
@@ -67,41 +79,18 @@ namespace test342
 
                       );
 
-        // public static XDocument CreateReport(IEnumerable<string> files)
-        //{
-
-        //}
-        /*
-        public static void CreateReport(IEnumerable<string> files)
-        {
-            var fileQuery = from file in files select (new FileInfo(file));
-
-            foreach (var fileData in fileQuery)
-            {
-                Console.WriteLine(fileData.Name + ": " + fileData.Length);
-            }
-        }*/
-
         static void Main(string[] args)
         {
+            // setup home directory so filePath will be correct across devices
             var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            //var tempDir = Path.Combine(appDataDir, "Documents");
-            Console.WriteLine(appDataDir);
-            Console.WriteLine("hello");
+
+            Console.WriteLine("Grabbing files from: " + appDataDir.ToString() + args[0]);
+            // sets up IEnumerable interface with C# generators
             var files = EnumerateFilesRecursively(appDataDir.ToString() + args[0]);
-            //Console.WriteLine(appDataDir.ToString() + "/School/");
-            //foreach (var f in files) Console.WriteLine(f);
-            CreateReport(files);
 
-            string inputFolder;
-            string outputFolder;
-            Console.WriteLine("Enter a folder path");
-            inputFolder = Console.ReadLine();
-
-            Console.WriteLine("Enter a path for the  report.html:");
-            outputFolder = Console.ReadLine();
-
-            CreateReport(EnumerateFilesRecursively(inputFolder)).Save(outputFolder + "\\report.html");
+            Console.WriteLine("Saving report.html to: " + appDataDir.ToString() + args[1]);
+            // saves file to report.html in the directory specified by the second console argument
+            CreateReport(files).Save(appDataDir.ToString() + args[1] + "report.html");
         }
     }
 }
