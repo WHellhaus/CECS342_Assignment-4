@@ -4,7 +4,7 @@ using System.IO;
 using System.Xml.Linq;
 using System.Linq;
 
-namespace test
+namespace test342
 {
     class Program
     {
@@ -21,25 +21,62 @@ namespace test
                     yield return file;
             }
         }
-
         //public static string FormatByteSize(long byteSize)
         //{
 
         //}
+        private static XDocument CreateReport(IEnumerable<string> files)
+           => new XDocument(
+               new XElement("html",
+                   new XElement("head",
+                       new XElement("th", "CECS 342 Lab Assignment 4"),
+                       new XElement("style", "table, th, td { border: 1px solid black; }")
 
-        //public static XDocument CreateReport(IEnumerable<string> files)
+                   ),
+                   new XElement("body",
+                       new XElement("table",
+                               new XElement("thead",
+                                       new XElement("th", "Type",
+                                           new XAttribute("align", "center")),
+                                       new XElement("th", "Count",
+                                            new XAttribute("align", "center")),
+                                       new XElement("th", "Size",
+                                            new XAttribute("align", "center"))
+                               ),
+                               new XElement("tbody",
+                                   from test in files
+                                   group test by Path.GetExtension(test).ToLower() into testFile
+                                   let fileSize = testFile.Sum(file => new FileInfo(file).Length)
+                                   orderby fileSize ascending
+                                   select new XElement("tr",
+                                       new XElement("td", testFile.Key,
+                                            new XAttribute("align", "left")),
+                                       new XElement("td", testFile.Count(),
+                                           new XAttribute("align", "right")),
+                                       new XElement("td", FormatByteSize(fileSize),
+                                           new XAttribute("align", "right"))
+                                   )//End select new XElement
+                               )
+                           )
+                       )
+                   )
+
+               );
+
+       // public static XDocument CreateReport(IEnumerable<string> files)
         //{
 
         //}
+        /*
         public static void CreateReport(IEnumerable<string> files)
         {
             var fileQuery = from file in files select (new FileInfo(file));
 
-            foreach(var fileData in fileQuery)
+            foreach (var fileData in fileQuery)
             {
                 Console.WriteLine(fileData.Name + ": " + fileData.Length);
             }
-        }
+        }*/
 
         static void Main(string[] args)
         {
@@ -51,6 +88,16 @@ namespace test
             //Console.WriteLine(appDataDir.ToString() + "/School/");
             //foreach (var f in files) Console.WriteLine(f);
             CreateReport(files);
+
+            string inputFolder;
+            string outputFolder;
+            Console.WriteLine("Enter a folder path");
+            inputFolder = Console.ReadLine();
+
+            Console.WriteLine("Enter a path for the  report.html:");
+            outputFolder = Console.ReadLine();
+
+            CreateReport(EnumerateFilesRecursively(inputFolder)).Save(outputFolder + "\\report.html");
         }
     }
 }
